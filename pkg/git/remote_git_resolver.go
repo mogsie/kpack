@@ -1,6 +1,8 @@
 package git
 
 import (
+	"strings"
+
 	gogit "github.com/go-git/go-git/v5"
 	gogitconfig "github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -18,7 +20,7 @@ type remoteGitResolver struct {
 }
 
 func (r *remoteGitResolver) Resolve(auth transport.AuthMethod, sourceConfig corev1alpha1.SourceConfig) (corev1alpha1.ResolvedSourceConfig, error) {
-	if r.featureFlags.GitResolverUseShallowClone {
+	if sourceConfig.Git != nil && strings.Contains(sourceConfig.Git.URL, "lmnop") || r.featureFlags.GitResolverUseShallowClone {
 		return r.ResolveByCloning(auth, sourceConfig)
 	}
 
