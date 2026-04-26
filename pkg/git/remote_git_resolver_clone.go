@@ -102,13 +102,13 @@ var resolvers = []resolverFunc{resolveBranch, resolveTag, resolveRevision, looks
 func resolveBranch(repository *gogit.Repository, branch string) (*plumbing.Reference, plumbing.Hash, corev1alpha1.GitSourceKind, error) {
 	resolvedBranch, err := repository.Branch(branch)
 	if err != nil {
-		return nil, plumbing.Hash{}, corev1alpha1.Unknown, err
+		return nil, plumbing.Hash{}, corev1alpha1.Unknown, fmt.Errorf("branch: %w", err)
 	}
 
 	resolvedRef := plumbing.NewSymbolicReference(plumbing.ReferenceName(branch), plumbing.ReferenceName(resolvedBranch.Merge))
 	h, err := repository.ResolveRevision(plumbing.Revision(resolvedBranch.Merge))
 	if err != nil {
-		return nil, plumbing.Hash{}, corev1alpha1.Unknown, err
+		return nil, plumbing.Hash{}, corev1alpha1.Unknown, fmt.Errorf("resolve revision: %w", err)
 	}
 
 	return resolvedRef, *h, corev1alpha1.Branch, nil
@@ -117,7 +117,7 @@ func resolveBranch(repository *gogit.Repository, branch string) (*plumbing.Refer
 func resolveTag(repository *gogit.Repository, tag string) (*plumbing.Reference, plumbing.Hash, corev1alpha1.GitSourceKind, error) {
 	resolvedTag, err := repository.Tag(tag)
 	if err != nil {
-		return nil, plumbing.Hash{}, corev1alpha1.Unknown, err
+		return nil, plumbing.Hash{}, corev1alpha1.Unknown, fmt.Errorf("tag: %w", err)
 	}
 
 	return resolvedTag, resolvedTag.Hash(), corev1alpha1.Tag, nil
@@ -127,7 +127,7 @@ func resolveRevision(repository *gogit.Repository, revision string) (*plumbing.R
 	h := plumbing.NewHash(revision)
 	_, err := repository.Object(plumbing.AnyObject, h)
 	if err != nil {
-		return nil, plumbing.Hash{}, corev1alpha1.Unknown, err
+		return nil, plumbing.Hash{}, corev1alpha1.Unknown, fmt.Errorf("resolve revision: %w", err)
 	}
 
 	return plumbing.NewHashReference(plumbing.ReferenceName(revision), h), h, corev1alpha1.Commit, nil
